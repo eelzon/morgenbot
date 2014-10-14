@@ -16,7 +16,7 @@ os.chdir(curdir)
 
 slack = Slacker(os.environ['TOKEN'])
 users = []
-parked = []
+topics = []
 time = []
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
 username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
@@ -32,9 +32,9 @@ def standup_users():
 	channel_id = '';
 	channel_name = channel.replace('#', '') # for some reason we skip the # in this API call
 	all_channels = slack.channels.list(1) # 1 means we skip any archived rooms
-	for channel in all_channels.body['channels']:
-		if channel['name'] == channel_name:
-			channel_id = channel['id']
+	for one_channel in all_channels.body['channels']:
+		if one_channel['name'] == channel_name:
+			channel_id = one_channel['id']
 
 	standup_room = slack.channels.info(channel_id).body['channel']
 	standup_users = standup_room['members']
@@ -117,7 +117,7 @@ def main():
 
 	if command == 'standup':
 		standup_users()
-		parked = []
+		topics = []
 		post_message('Good morning, @channel! Please type !start when you are ready to stand up.')
 	elif command == 'start':
 		time.append(datetime.datetime.now())
