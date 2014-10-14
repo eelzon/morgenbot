@@ -19,18 +19,18 @@ users = []
 parked = []
 start_time = 0
 end_time = 0
-channel = os.environ['CHANNEL'] or '#standup'
-username = os.environ['USERNAME'] or 'morgenbot'
-icon_emoji = os.environ['ICON_EMOJI'] or ':coffee:'
+channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
+username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
+icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
 
 def post_message(text):
 	slack.chat.post_message(channel = channel, 
 							text = text, 
 							username = username, 
-							icon_emoji = icon_emoji
+							icon_emoji = icon_emoji)
 							
 def standup_users():
-	ignore_users = os.environ['IGNORE_USERS'] or []
+	ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else []
 	standup_room = slack.channels.info('C02PH2P0Y').body['channel']
 	standup_users = standup_room['members']
 	active_users = []
@@ -75,8 +75,7 @@ def parked():
 		
 def help(topic=''):
 	if topic == '':
-		post_message('My commands are !standup, !start, !cancel, !next, !skip, !park, and !left.')
-		post_message('Ask me "!help <command> to learn what they do.')
+		post_message('My commands are !standup, !start, !cancel, !next, !skip, !park, and !left.\nAsk me "!help <command> to learn what they do.')
 	elif topic == 'standup' or topic == '!standup':
 		post_message('Type !standup to initiate a new standup')
 	elif topic == 'start' or topic == '!start':
@@ -100,9 +99,6 @@ def main():
 	msguser = request.form.get("user_name", "").strip()
 	if msguser == username or msguser.lower() == "slackbot": return
 
-	# ignore if we already stood up
-	#if len(users) == 0: return
-
 	text = request.form.get("text", "")
 
 	# ignore if it doesn't start with !
@@ -118,8 +114,7 @@ def main():
 		post_message('Good morning, @channel! Please type !start when you are ready to stand up.')
 	elif command == 'start':
 		start_time = datetime.datetime.now()
-		post_message('Let\'s get started! What did you work on yesterday? What are you working on today? What, if any, are your blockers?')
-		post_message('When you\'re done, please type !next')
+		post_message('Let\'s get started! What did you work on yesterday? What are you working on today? What, if any, are your blockers?\nWhen you\'re done, please type !next')
 		next()
 	elif command == 'cancel':
 		post_message('Standup is cancelled. Bye!')
