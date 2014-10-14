@@ -17,8 +17,7 @@ os.chdir(curdir)
 slack = Slacker(os.environ['TOKEN'])
 users = []
 parked = []
-start_time = 0
-end_time = 0
+time = []
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
 username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
@@ -30,33 +29,40 @@ def post_message(text):
 							icon_emoji = icon_emoji)
 							
 def standup_users():
-	ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else []
-	standup_room = slack.channels.info('C02PH2P0Y').body['channel']
+	channel_id = '';
+	channel_name = channel.replace('#', '') # for some reason we skip the # in this API call
+	all_channels = slack.channels.list(1) # 1 means we skip any archived rooms
+	for channel in all_channels.body['channels']:
+		if channel['name'] == channel_name:
+			channel_id = channel['id']
+
+	standup_room = slack.channels.info(channel_id).body['channel']
 	standup_users = standup_room['members']
-	active_users = []
+	ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else []
 	
 	for user_data in standup_users:
 		user_name = slack.users.info(user_data).body['user']['name']
+		print user_name
 		if user_name not in ignore_users:
-			active_users.append(user_name)
+			users.append(user_name)
 	# don't forget to shuffle so we don't go in the same order every day!
-	return random.shuffle(active_users)
+	print users
+	random.shuffle(users)
+	print users
 							
 def next():
 	if len(users) == 0:
-		end_time = datetime.datetime.now()
-		post_message('That\'s everyone! Standup took us %s minutes.' % standup_time())
-		if len(parked) != 0:
+		time.append(datetime.datetime.now())
+		post_message('That\'s everyone! Standup took us %d minutes.' % standup_time())
+		if len(topics) != 0:
 			parked()
 		post_message('Bye!')
 	else:
 		post_message('%s, you\'re up' % users.pop())
 		
 def standup_time():
-	duration = end_time - start_time
-	seconds = duration.seconds
-	minutes = seconds / 60
-	return minutes
+	duration = (time[1] - time[0]).total_seconds()
+	return duration / 60
 	
 def left():
 	post_message('Here\'s who\'s left: ' + ', '.join(users))
@@ -66,11 +72,12 @@ def skip(skipped):
 	next()
 	
 def park(topic):
-	parked.append(topic)
+	post_message('Parked.')
+	topics.append(topic)
 		
 def parked():
 	post_message('Parked topics:')
-	for topic in parked:
+	for topic in topics:
 		post_message('- %s' % topic)
 		
 def help(topic=''):
@@ -106,14 +113,14 @@ def main():
 	if not match: return
 
 	command = match[0]
-	args = text.replace("!%s" % match[0], '')
+	args = text.replace("!%s " % match[0], '')
 
 	if command == 'standup':
-		users = standup_users()
+		standup_users()
 		parked = []
 		post_message('Good morning, @channel! Please type !start when you are ready to stand up.')
 	elif command == 'start':
-		start_time = datetime.datetime.now()
+		time.append(datetime.datetime.now())
 		post_message('Let\'s get started! What did you work on yesterday? What are you working on today? What, if any, are your blockers?\nWhen you\'re done, please type !next')
 		next()
 	elif command == 'cancel':
@@ -126,7 +133,7 @@ def main():
 		park(args)
 	elif command == 'left':
 		left()
-	elif commant == 'help':
+	elif command == 'help':
 		help(args)
 		
 	return json.dumps({ })
