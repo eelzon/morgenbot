@@ -1,5 +1,5 @@
 # Morgenbot
-Good morning! Morgenbot is a [Slack](https://slack.com/) standup bot.
+Good morning! Morgenbot is a [Slack](https://slack.com/) standup bot. ☕
 
 ## Installation
 
