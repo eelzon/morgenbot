@@ -6,14 +6,14 @@
 1. Clone the repo
 2. `pip install -r requirements.txt`
 3. Host the web app on [Heroku](http://heroku.com):
-```
+   ```
 heroku create
 git push heroku master
 heroku ps:scale web=1
 heroku logs
 ```
 4. Set up some config variables:
-```
+   ```
 heroku config:set TOKEN=<your team's Slack API token> (required)
 heroku config:set USERNAME=<your bot's username> (optional; defaults to 'morgenbot')
 heroku config:set ICON_EMOJI=<the emoji used in the bot's icon> (optional; defaults to ':coffee:')
@@ -24,8 +24,7 @@ heroku config:set IGNORE_USERS=<list of strings representing channel users who n
 6. Type `!standup` in your chosen channel to start a new standup. (Need help? Type `!help`.)
 
 ## Thanks
-
+This project takes its inspiration from the [tender](https://github.com/markpasc/tender) bot for IRC and leaned heavily on [Slask](https://github.com/llimllib/slask) for its implementation of Flask.
 
 ## Contributors
-
 * @eelzon
