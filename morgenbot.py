@@ -18,6 +18,7 @@ slack = Slacker(os.environ['TOKEN'])
 users = []
 topics = []
 time = []
+current_user = ''
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
 username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
@@ -58,22 +59,23 @@ def next():
 			parked()
 		post_message('Bye!')
 	else:
-		post_message('%s, you\'re up' % users.pop())
+        current_user = users.pop()
+		post_message('@%s, you\'re up' % current_user)
 		
 def standup_time():
 	duration = (time[1] - time[0]).total_seconds()
 	return duration / 60
 	
 def left():
-	post_message('Here\'s who\'s left: ' + ', '.join(users))
+	post_message('Here\'s who\'s left: @' + ', @'.join(users))
 	
-def skip(skipped):
-	post_message('Skipping %s.' % skipped)
+def skip():
+	post_message('Skipping @%s.' % current_user)
 	next()
 	
-def park(topic):
-	post_message('Parked.')
-	topics.append(topic)
+def park(user, topic):
+    post_message('@%s: Parked.' % user)
+    topics.append(topic)
 		
 def parked():
 	post_message('Parked topics:')
@@ -94,7 +96,7 @@ def help(topic=''):
 	elif topic == 'skip' or topic == '!skip':
 		post_message('Type !skip to skip someone who isn\'t standing up that day')
 	elif topic == 'park' or topic == '!park':
-		post_message('Type !park to save a topic for later discussion. I\'ll list these for you when standup is over.')
+		post_message('Type !park <topic> to save a topic for later discussion. I\'ll list these for you when standup is over.')
 	elif topic == 'left' or topic == '!left':
 		post_message('Type !left to find out who is left in the standup')
 	else:
@@ -107,7 +109,8 @@ def main():
 	if msguser == username or msguser.lower() == "slackbot": return
 
 	text = request.form.get("text", "")
-
+    typing_user = request.form.get("user_name", "")
+    
 	# ignore if it doesn't start with !
 	match = re.findall(r"!(\S+)", text)
 	if not match: return
@@ -128,9 +131,9 @@ def main():
 	elif command == 'next':
 		next()
 	elif command == 'skip':
-		skip(args)
+		skip()
 	elif command == 'park':
-		park(args)
+		park(typing_user, args)
 	elif command == 'left':
 		left()
 	elif command == 'help':
