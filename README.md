@@ -1,6 +1,8 @@
 # Morgenbot
 Good morning! Morgenbot is a [Slack](https://slack.com/) standup bot. ☕
 
+![screenshot](screenshot.png)
+
 ## Installation
 
 1. Clone the repo
