@@ -18,7 +18,7 @@ slack = Slacker(os.environ['TOKEN'])
 username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
-ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else []
+ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else ''
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -175,15 +175,15 @@ def heed(user):
 def ignoring():
     global ignore_users
     global absent_users
-        
+    
     if len(ignore_users) == 0 and len(absent_users) == 0:
         post_message('We\'re not ignoring anyone.')
         return
         
     if len(ignore_users) != 0:    
-        post_message('Here\'s who we never call on: @' + ', @'.join(ignore_users))
+        post_message('Here\'s who we never call on: ' + ignore_users)
     if len(absent_users) != 0:    
-        post_message('Here\'s who we\'re ignoring for now: @' + ', @'.join(absent_users))
+        post_message('Here\'s who we\'re ignoring for now: ' + ', '.join(absent_users))
 
 def skip():
     post_message('Skipping @%s.' % current_user)
