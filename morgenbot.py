@@ -90,6 +90,8 @@ def reset():
 def standup_users():
     global ignore_users
     global absent_users
+    
+    ignore_users_array = eval(ignore_users)
 
     channel_id = '';
     channel_name = channel.replace('#', '') # for some reason we skip the # in this API call
@@ -104,7 +106,8 @@ def standup_users():
     
     for user_data in standup_users:
         user_name = slack.users.info(user_data).body['user']['name']
-        if user_name not in ignore_users and user_name not in absent_users:
+        is_deleted = slack.users.info(user_data).body['user']['deleted']
+        if not is_deleted and user_name not in ignore_users_array and user_name not in absent_users:
             active_users.append(user_name)
             
     # don't forget to shuffle so we don't go in the same order every day!
