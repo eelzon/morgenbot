@@ -20,7 +20,7 @@ Good morning! Morgenbot is a [Slack](https://slack.com/) standup bot. ☕
    - `USERNAME`: your bot's username. (optional; defaults to `morgenbot`)
    - `ICON_EMOJI`: the emoji used in the bot's icon. (optional; defaults to `:coffee:`)
    - `CHANNEL`: the channel in which you stand up. (optional; defaults to `#standup`)
-   - `IGNORE_USERS`: a comma-separated of string representing channel users who never stand up. (optional; defaults to ``)
+   - `IGNORE_USERS`: a comma-separated array of strings representing active channel users who never stand up. (eg "['username1', 'username2']"; optional; defaults to ``)
 5. Add the URL where the web app is deployed as an [outgoing webhook](https://my.slack.com/services/new/outgoing-webhook) in Slack. Don't forget the trailing `/`!
 6. Type `!standup` in your chosen channel to start a new standup. (Need help? Type `!help`.)
 
