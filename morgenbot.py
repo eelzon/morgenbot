@@ -18,7 +18,7 @@ slack = Slacker(os.environ['TOKEN'])
 username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
-ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else []
+ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else ''
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -91,6 +91,8 @@ def reset():
 def standup_users():
     global ignore_users
     global absent_users
+    
+    ignore_users_array = eval(ignore_users)
 
     channel_id = '';
     channel_name = channel.replace('#', '') # for some reason we skip the # in this API call
@@ -105,7 +107,8 @@ def standup_users():
     
     for user_data in standup_users:
         user_name = slack.users.info(user_data).body['user']['name']
-        if user_name not in ignore_users and user_name not in absent_users:
+        is_deleted = slack.users.info(user_data).body['user']['deleted']
+        if not is_deleted and user_name not in ignore_users_array and user_name not in absent_users:
             active_users.append(user_name)
             
     # don't forget to shuffle so we don't go in the same order every day!
@@ -176,15 +179,15 @@ def heed(user):
 def ignoring():
     global ignore_users
     global absent_users
-        
+    
     if len(ignore_users) == 0 and len(absent_users) == 0:
         post_message('We\'re not ignoring anyone.')
         return
         
     if len(ignore_users) != 0:    
-        post_message('Here\'s who we never call on: @' + ', @'.join(ignore_users))
+        post_message('Here\'s who we never call on: ' + ignore_users)
     if len(absent_users) != 0:    
-        post_message('Here\'s who we\'re ignoring for now: @' + ', @'.join(absent_users))
+        post_message('Here\'s who we\'re ignoring for now: ' + ', '.join(absent_users))
 
 def skip():
     post_message('Skipping @%s.' % current_user)
