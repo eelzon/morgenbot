@@ -30,10 +30,11 @@ current_user = ''
 absent_users = []
 
 def post_message(text):
-    slack.chat.post_message(channel = channel,
-                            text = text,
-                            username = username,
-                            icon_emoji = icon_emoji)
+    slack.chat.post_message(channel     = channel,
+                            text        = text,
+                            username    = username,
+                            icon_emoji  = icon_emoji,
+                            parse       = 'full')
                             
 def init():
     global users
