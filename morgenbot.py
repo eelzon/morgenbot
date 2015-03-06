@@ -255,6 +255,8 @@ def main():
     
     if command not in commands:
         post_message('Not sure what "%s" is.' % command)
+        if giphy:
+            post_message('/giphy %s' % topic)
         return json.dumps({ })
     elif not in_progress and command != 'standup' and command != 'help' and command != 'ignore' and command != 'heed' and command != 'ignoring':
         post_message('Looks like standup hasn\'t started yet. Type !standup.')
