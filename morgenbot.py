@@ -19,7 +19,7 @@ username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morge
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
 ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else ''
-giphy = True if 'GIPHY' in os.environ.keys() and os.environ['GIPHY'].lower() == 'TRUE' else False
+giphy = True if 'GIPHY' in os.environ.keys() and os.environ['GIPHY'].lower() == 'true' else False
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
