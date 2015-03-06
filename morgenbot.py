@@ -19,6 +19,7 @@ username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morge
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
 ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else ''
+giphy = True if os.environ['CHANNEL'].lower() == 'true' else False
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -197,7 +198,7 @@ def table(user, topic):
     global topics
     
     post_message('@%s: Tabled.' % user)
-    topics.append(topic)
+    topics.append(str(topic))
 
 def tabled():
     if len(topics) == 0: return
@@ -233,6 +234,8 @@ def help(topic=''):
         post_message('Type !ignoring to find out who we\'re skipping over for standups')
     else:
         post_message('Not sure what "%s" is.' % topic)
+        if giphy:
+            post_message('/giphy %s' % topic)
 
 @app.route("/", methods=['POST'])
 def main():
