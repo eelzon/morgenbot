@@ -19,7 +19,7 @@ username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morge
 icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
 channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
 ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else ''
-giphy = True if 'GIPHY' in os.environ.keys() and os.environ['GIPHY'].lower() == 'true' else False
+giphy = True if 'GIPHY' in os.environ.keys() and os.environ['GIPHY'].lower() == 'TRUE' else False
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -256,7 +256,7 @@ def main():
     if command not in commands:
         post_message('Not sure what "%s" is.' % command)
         if giphy:
-            post_message('/giphy %s' % topic)
+            post_message('/giphy %s' % command)
         return json.dumps({ })
     elif not in_progress and command != 'standup' and command != 'help' and command != 'ignore' and command != 'heed' and command != 'ignoring':
         post_message('Looks like standup hasn\'t started yet. Type !standup.')
