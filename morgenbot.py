@@ -34,6 +34,7 @@ def post_message(text):
     slack.chat.post_message(channel     = channel,
                             text        = text,
                             username    = username,
+                            link_names  = 1,
                             icon_emoji  = icon_emoji,
                             parse       = 'full')
                             
