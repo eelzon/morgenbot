@@ -41,6 +41,14 @@ def post_message(text, attachments=[]):
                             attachments = attachments,
                             icon_emoji  = icon_emoji)
                             
+def get_user(id):
+    user = slack.users.info(id).body
+    return user['user']['name']
+    
+def get_channel(id):
+    channel = slack.channels.info(id).body
+    return channel['channel']['name']
+                            
 def init():
     global users
     global topics
@@ -110,9 +118,9 @@ def standup_users():
     standup_users = standup_room['members']
     active_users = []
     
-    for user_data in standup_users:
-        user_name = slack.users.info(user_data).body['user']['name']
-        is_deleted = slack.users.info(user_data).body['user']['deleted']
+    for user_id in standup_users:
+        user_name = slack.users.info(user_id).body['user']['name']
+        is_deleted = slack.users.info(user_id).body['user']['deleted']
         if not is_deleted and user_name not in ignore_users_array and user_name not in absent_users:
             active_users.append(user_name)
             
@@ -198,10 +206,21 @@ def skip():
     post_message('Skipping @%s.' % current_user)
     next()
 
-def table(user, topic):
+def table(topic_user, topic):
     global topics
     
-    post_message('@%s: Tabled.' % user)
+    channels = re.findall(r"<#(.*?)>", topic)
+    users = re.findall(r"<@(.*?)>", topic)
+
+    for channel in channels:
+        channel_name = get_channel(channel)
+        topic = topic.replace('<#%s>' % channel, '#%s' % channel_name)
+
+    for user in users:
+        user_name = get_user(user)
+        topic = topic.replace('<@%s>' % user, '@%s' % user_name)
+    
+    post_message('@%s: Tabled.' % topic_user)
     topics.append(str(topic))
 
 def tabled():
