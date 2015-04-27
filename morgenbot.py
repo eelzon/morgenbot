@@ -6,6 +6,8 @@ import json
 import datetime
 import time
 import random
+import urllib2
+
 from slacker import Slacker
 
 from flask import Flask, request
@@ -30,13 +32,14 @@ in_progress = False
 current_user = ''
 absent_users = []
 
-def post_message(text):
+def post_message(text, attachments=[]):
     slack.chat.post_message(channel     = channel,
                             text        = text,
                             username    = username,
+                            parse       = 'full',
                             link_names  = 1,
-                            icon_emoji  = icon_emoji,
-                            parse       = 'full')
+                            attachments = attachments,
+                            icon_emoji  = icon_emoji)
                             
 def init():
     global users
@@ -206,6 +209,23 @@ def tabled():
     post_message('Tabled topics:')
     for topic in topics:
         post_message('-%s' % topic)
+        
+def giphy(text):
+    url = 'http://api.giphy.com/v1/gifs/search?q=%s&api_key=dc6zaTOxFJmzC&limit=1' % urllib2.quote(text.encode("utf8"))
+    response = urllib2.urlopen(url)
+    data = json.loads(response.read())
+    
+    if len(data['data']) == 0:
+        post_message('Not sure what "%s" is.' % text)
+    else:
+        attachments = [{
+            'fallback': text,
+            'title': text,
+            'title_link': data['data'][0]['url'],
+            'image_url': data['data'][0]['images']['fixed_height']['url']
+        }]
+    
+        post_message('Not sure what "%s" is.' % text, json.dumps(attachments))
 
 def help(topic=''):
     if topic == '':
@@ -255,9 +275,10 @@ def main():
     command = command.lower()
     
     if command not in commands:
-        post_message('Not sure what "%s" is.' % command)
         if giphy:
-            post_message('/giphy %s' % command)
+            giphy(text[1:])
+        else:
+            post_message('Not sure what "%s" is.' % command)
         return json.dumps({ })
     elif not in_progress and command != 'standup' and command != 'help' and command != 'ignore' and command != 'heed' and command != 'ignoring':
         post_message('Looks like standup hasn\'t started yet. Type !standup.')
