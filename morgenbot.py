@@ -16,12 +16,16 @@ app = Flask(__name__)
 curdir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(curdir)
 
-slack = Slacker(os.environ['TOKEN'])
-username = os.environ['USERNAME'] if 'USERNAME' in os.environ.keys() else 'morgenbot'
-icon_emoji = os.environ['ICON_EMOJI'] if 'ICON_EMOJI' in os.environ.keys() else ':coffee:'
-channel = os.environ['CHANNEL'] if 'CHANNEL' in os.environ.keys() else '#standup'
-ignore_users = os.environ['IGNORE_USERS'] if 'IGNORE_USERS' in os.environ.keys() else '[]'
-giphy = True if 'GIPHY' in os.environ.keys() and os.environ['GIPHY'].lower() == 'true' else False
+slack = Slacker(os.getenv('TOKEN'))
+username = os.getenv('USERNAME', 'morgenbot')
+icon_emoji = os.getenv('ICON_EMOJI', ':coffee:')
+channel = os.getenv('CHANNEL', '#standup')
+ignore_users = os.getenv('IGNORE_USERS', '[]')
+
+init_greeting = os.getenv('INIT_GREETING', 'Good morning!')
+start_message = os.getenv('START_MESSAGE', 'What did you work on yesterday? What are you working on today? What, if any, are your blockers?')
+
+giphy = True if os.getenv('GIPHY', 'false').lower() == 'true' else False
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -62,7 +66,7 @@ def init():
     topics = []
     time = []
     in_progress = True
-    post_message('Good morning, @channel! Please type !start when you are ready to stand up.')
+    post_message('%s, @channel! Please type !start when you are ready to stand up.' % init_greeting)
 
 def start():
     global time
@@ -71,7 +75,7 @@ def start():
         post_message('But we\'ve already started!')
         return
     time.append(datetime.datetime.now())
-    post_message('Let\'s get started! What did you work on yesterday? What are you working on today? What, if any, are your blockers?\nWhen you\'re done, please type !next')
+    post_message('Let\'s get started! %s\nWhen you\'re done, please type !next' % start_message)
     next()
 
 def cancel():
