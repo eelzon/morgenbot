@@ -27,8 +27,18 @@ Good morning! Morgenbot is a [Slack](https://slack.com/) standup bot. ☕
 5. Add the URL where the web app is deployed as an [outgoing webhook](https://my.slack.com/services/new/outgoing-webhook) in Slack. Don't forget the trailing `/`!
 6. Type `!standup` in your chosen channel to start a new standup. (Need help? Type `!help`.)
 
+## Alternate Installation (Docker)
+
+1. Clone the repo
+2. Install the latest version of [Docker Toolbox](https://www.docker.com/toolbox) for local development and testing
+3. Run `docker-compose up` to build the container
+4. Environment variables can be set via the `.env` file (a sample `.env.example` file is included)
+
+The container itself can be deployed to any Docker compatible host.
+
 ## Thanks
 This project takes its inspiration from [tender](https://github.com/markpasc/tender), a standup bot for IRC; leaned heavily on [Slask](https://github.com/llimllib/slask) for its implementation of Flask; and uses the [Slack API](https://api.slack.com/) via the Python wrapper [Slacker](https://github.com/os/slacker). Thank you.
 
 ## Contributors
 * @eelzon
+* @alexbain
