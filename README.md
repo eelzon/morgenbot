@@ -41,4 +41,6 @@ This project takes its inspiration from [tender](https://github.com/markpasc/ten
 
 ## Contributors
 * @eelzon
+* @sos4nt
+* @frodopwns
 * @alexbain
