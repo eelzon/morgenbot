@@ -27,7 +27,7 @@ start_message = os.getenv('START_MESSAGE', 'What did you work on yesterday? What
 
 giphy = True if os.getenv('GIPHY', 'false').lower() == 'true' else False
 
-commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
+commands = ['standup','start','cancel','next','skip','later','table','left','ignore','heed','ignoring','help']
 
 users = []
 topics = []
