@@ -26,6 +26,7 @@ init_greeting = os.getenv('INIT_GREETING', 'Good morning!')
 start_message = os.getenv('START_MESSAGE', 'What did you work on yesterday? What are you working on today? What, if any, are your blockers?')
 
 giphy = True if os.getenv('GIPHY', 'false').lower() == 'true' else False
+prefix_only = True if os.getenv('PREFIX_ONLY', 'false').lower() == 'true' else False
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -290,16 +291,19 @@ def main():
     text = request.form.get("text", "")
 
     # find !command, but ignore <!command
-    match = re.findall(r"(?<!<)!(\S+)", text)
+    if prefix_only:
+        match = re.findall(r"^!(\S+)", text)
+    else:
+        match = re.findall(r"(?<!<)!(\S+)", text)
     if not match: return
 
     command = match[0]
-    args = text.replace("!%s" % command, '')
+    args = text[text.find("!%s" % command) + len(command) + 1:]
     command = command.lower()
     
     if command not in commands:
         if giphy:
-            giphy(text[1:])
+            giphy("%s %s" % (command, args))
         else:
             post_message('Not sure what "%s" is.' % command)
         return json.dumps({ })
