@@ -27,7 +27,7 @@ start_message = os.getenv('START_MESSAGE', 'What did you work on yesterday? What
 
 giphy = True if os.getenv('GIPHY', 'false').lower() == 'true' else False
 
-commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
+commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','ready','help']
 
 users = []
 topics = []
@@ -250,9 +250,41 @@ def giphy(text):
     
         post_message('Not sure what "%s" is.' % text, json.dumps(attachments))
 
+def ready(msguser):
+    global ignore_users
+    global absent_users
+    global current_user
+    global users
+    active_users = standup_users()
+
+    if msguser == '':
+        post_message('Your username is blank. Are you a ghost?')
+        return
+
+    if msguser not in active_users and msguser not in ignore_users and msguser not in absent_users:
+        post_message('I don\'t recognize you. How did you get in here?')
+    elif msguser in ignore_users:
+        post_message('I\'m ignoring you. Try asking my admin to heed you.')
+    elif msguser in absent_users:
+        post_message('I\'ll come back to you, @%s' % current_user)
+        users.append(current_user)
+        current_user = msguser
+        absent_users.remove(msguser)
+        post_message('Welcome back, @%s. We will call on you from now on.' % msguser)
+    elif msguser in users:
+        post_message('I\'ll come back to you, @%s' % current_user)
+        users.append(current_user)
+        current_user = msguser
+        users.remove(msguser)
+        post_message('Alright @%s, go ahead' % msguser)
+    elif msguser == current_user:
+        post_message('It\'s already your turn. Go ahead.')
+    else:
+        post_message('You already went during this standup')
+
 def help(topic=''):
     if topic == '':
-        post_message('My commands are !standup, !start, !cancel, !next, !skip, !table, !left, !ignore, !heed, and !ignoring.\nAsk me "!help <command> to learn what they do.')
+        post_message('My commands are !standup, !start, !cancel, !next, !ready, !skip, !table, !left, !ignore, !heed, and !ignoring.\nAsk me "!help <command> to learn what they do.')
         return
         
     topic = topic[1:]
@@ -276,6 +308,8 @@ def help(topic=''):
         post_message('Type !heed <username> to add an ignored user back, starting with the next standup')
     elif topic == 'ignoring' or topic == '!ignoring':
         post_message('Type !ignoring to find out who we\'re skipping over for standups')
+    elif topic == 'ready' or topic == '!ready':
+        post_message('Type !ready to skip ahead in the queue and give your standup immediately')
     else:
         post_message('Not sure what "%s" is.' % topic)
         if giphy:
@@ -329,6 +363,8 @@ def main():
         ignoring()
     elif command == 'help':
         help(args)
+    elif command == 'ready':
+        ready(msguser)
         
     return json.dumps({ })
 
