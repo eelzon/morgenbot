@@ -26,7 +26,6 @@ init_greeting = os.getenv('INIT_GREETING', 'Good morning!')
 start_message = os.getenv('START_MESSAGE', 'What did you work on yesterday? What are you working on today? What, if any, are your blockers?')
 
 giphy = True if os.getenv('GIPHY', 'false').lower() == 'true' else False
-prefix_only = True if os.getenv('PREFIX_ONLY', 'false').lower() == 'true' else False
 
 commands = ['standup','start','cancel','next','skip','table','left','ignore','heed','ignoring','help']
 
@@ -45,21 +44,21 @@ def post_message(text, attachments=[]):
                             link_names  = 1,
                             attachments = attachments,
                             icon_emoji  = icon_emoji)
-                            
+
 def get_user(id):
     user = slack.users.info(id).body
     return user['user']['name']
-    
+
 def get_channel(id):
     channel = slack.channels.info(id).body
     return channel['channel']['name']
-                            
+
 def init():
     global users
     global topics
     global time
     global in_progress
-     
+
     if len(users) != 0:
         post_message('Looks like we have a standup already in process.')
         return
@@ -71,7 +70,7 @@ def init():
 
 def start():
     global time
-    
+
     if len(time) != 0:
         post_message('But we\'ve already started!')
         return
@@ -83,33 +82,33 @@ def cancel():
     tabled()
     post_message('Standup is cancelled. Bye!')
     reset()
-    
+
 def done():
     global time
-    
+
     time.append(datetime.datetime.now())
     standup_time()
     tabled()
     post_message('Bye!')
     reset()
-    
+
 def reset():
     global users
     global topics
     global time
     global in_progress
     global current_user
-    
+
     del users[:]
     del topics[:]
     del time[:]
     in_progress = False
     current_user = ''
-    
+
 def standup_users():
     global ignore_users
     global absent_users
-    
+
     ignore_users_array = eval(ignore_users)
 
     channel_id = '';
@@ -118,32 +117,32 @@ def standup_users():
     for one_channel in all_channels.body['channels']:
         if one_channel['name'] == channel_name:
             channel_id = one_channel['id']
-    
+
     standup_room = slack.channels.info(channel_id).body['channel']
     standup_users = standup_room['members']
     active_users = []
-    
+
     for user_id in standup_users:
         user_name = slack.users.info(user_id).body['user']['name']
         is_deleted = slack.users.info(user_id).body['user']['deleted']
         if not is_deleted and user_name not in ignore_users_array and user_name not in absent_users:
             active_users.append(user_name)
-            
+
     # don't forget to shuffle so we don't go in the same order every day!
     random.shuffle(active_users)
-    
+
     return active_users
 
 def next():
     global users
     global current_user
-    
+
     if len(users) == 0:
         done()
     else:
         current_user = users.pop()
         post_message('@%s, you\'re up' % current_user)
-        
+
 def standup_time():
     if len(time) != 2: return
     seconds = (time[1] - time[0]).total_seconds()
@@ -153,18 +152,18 @@ def standup_time():
 def left():
     if len(users) == 0:
         post_message('That\'s everyone!')
-    else:    
+    else:
         post_message('Here\'s who\'s left: @' + ', @'.join(users))
-        
+
 def ignore(user):
     global ignore_users
     global absent_users
     active_users = standup_users()
-    
+
     if user == '':
         post_message('Who should I ignore?')
         return
-    
+
     user = user[1:]
     if user not in active_users and user not in ignore_users and user not in absent_users:
         post_message('I don\'t recognize that user.')
@@ -173,16 +172,16 @@ def ignore(user):
     elif user in active_users:
         absent_users.append(user)
         post_message('I won\'t call on @%s again until I am told to using !heed <username>.' % user)
-    
+
 def heed(user):
     global ignore_users
     global absent_users
     active_users = standup_users()
-    
+
     if user == '':
         post_message('Who should I heed?')
         return
-    
+
     user = user[1:]
     if user not in active_users and user not in ignore_users and user not in absent_users:
         post_message('I don\'t recognize that user.')
@@ -193,18 +192,18 @@ def heed(user):
     elif user in absent_users:
         absent_users.remove(user)
         post_message('I\'ll start calling on @%s again at the next standup.' % user)
-        
+
 def ignoring():
     global ignore_users
     global absent_users
-    
+
     if len(ignore_users) == 0 and len(absent_users) == 0:
         post_message('We\'re not ignoring anyone.')
         return
-        
-    if len(ignore_users) != 0:    
+
+    if len(ignore_users) != 0:
         post_message('Here\'s who we never call on: ' + ignore_users)
-    if len(absent_users) != 0:    
+    if len(absent_users) != 0:
         post_message('Here\'s who we\'re ignoring for now: ' + ', '.join(absent_users))
 
 def skip():
@@ -213,7 +212,7 @@ def skip():
 
 def table(topic_user, topic):
     global topics
-    
+
     channels = re.findall(r"<#(.*?)>", topic)
     users = re.findall(r"<@(.*?)>", topic)
 
@@ -224,7 +223,7 @@ def table(topic_user, topic):
     for user in users:
         user_name = get_user(user)
         topic = topic.replace('<@%s>' % user, '@%s' % user_name)
-    
+
     post_message('@%s: Tabled.' % topic_user)
     topics.append(str(topic))
 
@@ -233,12 +232,12 @@ def tabled():
     post_message('Tabled topics:')
     for topic in topics:
         post_message('-%s' % topic)
-        
+
 def giphy(text):
     url = 'http://api.giphy.com/v1/gifs/search?q=%s&api_key=dc6zaTOxFJmzC&limit=1' % urllib2.quote(text.encode("utf8"))
     response = urllib2.urlopen(url)
     data = json.loads(response.read())
-    
+
     if len(data['data']) == 0:
         post_message('Not sure what "%s" is.' % text)
     else:
@@ -248,14 +247,14 @@ def giphy(text):
             'title_link': data['data'][0]['url'],
             'image_url': data['data'][0]['images']['fixed_height']['url']
         }]
-    
+
         post_message('Not sure what "%s" is.' % text, json.dumps(attachments))
 
 def help(topic=''):
     if topic == '':
         post_message('My commands are !standup, !start, !cancel, !next, !skip, !table, !left, !ignore, !heed, and !ignoring.\nAsk me "!help <command> to learn what they do.')
         return
-        
+
     topic = topic[1:]
     if topic == 'standup' or topic == '!standup':
         post_message('Type !standup to initiate a new standup')
@@ -290,17 +289,13 @@ def main():
 
     text = request.form.get("text", "")
 
-    # find !command, but ignore <!command
-    if prefix_only:
-        match = re.findall(r"^!(\S+)", text)
-    else:
-        match = re.findall(r"(?<!<)!(\S+)", text)
+    match = re.findall(r"^!(\S+)", text)
     if not match: return
 
     command = match[0]
     args = text[text.find("!%s" % command) + len(command) + 1:]
     command = command.lower()
-    
+
     if command not in commands:
         if giphy:
             giphy("%s %s" % (command, args))
@@ -310,7 +305,7 @@ def main():
     elif not in_progress and command != 'standup' and command != 'help' and command != 'ignore' and command != 'heed' and command != 'ignoring':
         post_message('Looks like standup hasn\'t started yet. Type !standup.')
         return json.dumps({ })
-        
+
     if command == 'standup':
         init()
     elif command == 'start':
@@ -333,7 +328,7 @@ def main():
         ignoring()
     elif command == 'help':
         help(args)
-        
+
     return json.dumps({ })
 
 if __name__ == "__main__":
