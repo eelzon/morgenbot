@@ -8,4 +8,4 @@ EXPOSE 5000
 
 RUN pip install -r requirements.txt
 
-RUN python morgenbot.py
+CMD python morgenbot.py
